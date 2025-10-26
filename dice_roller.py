@@ -2,22 +2,36 @@ from random import randint
 
 def dice_roller(user_input: str):
     user_input = user_input.replace(" ", "")
-    rolls, d, sides = user_input.partition("d")
+    expression = user_input.split("+")
 
-    rolls = int(rolls)
-    sides = int(sides)
-
+    valid_dice = ["4", "6", "8", "10", "12", "20"]
     results = []
-    for _ in range(rolls):
-        results.append(randint(1, sides))
-    
-    return results
+
+    for die in expression:
+        rolls, d, sides = die.partition("d")
+        if d != "d" or sides not in valid_dice:
+            return "Invalid format or dice type", False
+
+        rolls = int(rolls)
+        sides = int(sides)
+
+        result = [randint(1, sides) for _ in range(rolls)]
+        results.append(result)
+
+    formatted = ""
+    for i, r in enumerate(results):
+        formatted += f"{expression[i]}: {r}\n"
+
+    return formatted, True
 
 def main():
-    print("Simple Dice Roller")
-    dice = input("Enter dice (e.g. 2d6): ")
-    print("Rolling...")
-    print(dice_roller(dice))
+    print("Dice Roller")
+    while True:
+        user_input = input("Enter dice: ")
+        result, status = dice_roller(user_input)
+        print(result)
+        if not status:
+            continue
 
 if __name__ == "__main__":
     main()
