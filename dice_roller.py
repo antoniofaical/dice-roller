@@ -1,37 +1,46 @@
 from random import randint
 
+SEPARATOR = "-" * 100
+VALID_DICE = ["4", "6", "8", "10", "12", "20"]
+
 def dice_roller(user_input: str):
-    user_input = user_input.replace(" ", "")
-    expression = user_input.split("+")
+    user_input = user_input.replace(" ", "").replace("'", "").replace('"', "")
+    expression = [term.strip() for term in user_input.split('+') if term.strip()]
 
-    valid_dice = ["4", "6", "8", "10", "12", "20"]
-    results = []
+    if not expression:
+        return "No dice specified.\n" + SEPARATOR, False
 
+    dice = []
     for die in expression:
         rolls, d, sides = die.partition("d")
-        if d != "d" or sides not in valid_dice:
-            return "Invalid format or dice type", False
+        if d != "d" or sides not in VALID_DICE:
+            return "Invalid dice format or type.\n" + SEPARATOR, False
 
-        rolls = int(rolls)
+        rolls = int(rolls) if rolls else 1
         sides = int(sides)
+        dice_rolls = [randint(1, sides) for _ in range(rolls)]
+        dice.append(dice_rolls)
 
-        result = [randint(1, sides) for _ in range(rolls)]
-        results.append(result)
+    result = ""
+    for i, expr in enumerate(expression):
+        rolls_str = ", ".join(str(x) for x in dice[i])
+        total = sum(dice[i])
+        result += f"{expr}: [{rolls_str}] (sum = {total})\n"
 
-    formatted = ""
-    for i, r in enumerate(results):
-        formatted += f"{expression[i]}: {r}\n"
-
-    return formatted, True
+    return result.strip(), True
 
 def main():
-    print("Dice Roller")
+    print(SEPARATOR)
+    print("Dice Roller - Now supports 'd6' shorthand!")
+    print(SEPARATOR)
     while True:
-        user_input = input("Enter dice: ")
-        result, status = dice_roller(user_input)
-        print(result)
-        if not status:
-            continue
+        try:
+            dice = input("Enter dice (Ctrl+C to exit): ")
+            result, status = dice_roller(dice)
+            print(result + "\n" + SEPARATOR)
+        except KeyboardInterrupt:
+            print("\nExiting Dice Roller. Goodbye!")
+            break
 
 if __name__ == "__main__":
     main()
